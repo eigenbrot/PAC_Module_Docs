@@ -1,0 +1,43 @@
+PA&C Module Documentation
+=========================
+
+This package provides a series of modules and tools that are used for Polarization Analysis and Calibration (PA&C) for
+DKIST.
+
+Installation
+------------
+
+The fully functional suite of PA&C Modules can be installed via:
+
+.. code-block:: console
+
+  $ pip install git+ssh://git@bitbucket.org:dkistdc/pac-pipeline.git
+
+If you want to generate fake data for testing you will need to install the
+`DKIST Data Model <https://bitbucket.org/dkistdc/dkist_data_model>`_ manually.
+
+Modules
+-------
+
+:doc:`demod` - This module takes data from a PolCal run and determines an instrument and setup
+specific set of demodulation matrices.
+
+:doc:`tele` - This modules uses multiple PolCal runs taken over a range of telescope
+geometries to compute mirror parameters for mirrors 3 - 6.
+
+:doc:`M12` - This module uses a specific type of science observation to determine the mirror
+parameters for M1 and M2.
+
+:doc:`QA` - This module is used to determine the precision of the aforementioned modules.
+One of its most useful results is uncertainty estimates of computed demodulation matrices.
+
+.. toctree::
+  :maxdepth: 2
+  :glob:
+  :hidden:
+
+  self
+  demod
+  tele
+  M12
+  QA

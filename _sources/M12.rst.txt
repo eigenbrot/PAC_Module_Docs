@@ -1,0 +1,93 @@
+Computation of M12 Parameters
+=============================
+
+The M12 mirror group is described by two parameters, :math:`X_{12}` and :math:`\tau_{12}`, each of which is calculated
+with a different method.
+
+:math:`X_{12}`
+--------------
+
+:math:`X_{12}` can be computed from any region of continuum in observations and should be done so at every opportunity
+(i.e., all positions of all science programs). All records of :math:`X_{12}` thus computed will be stored in a database
+that can be used to update the globally accepted value of :math:`X_{12}` on a semi-regular basis. The instrument
+partners will be responsible for providing QU/I continuum cross-talk from their science observations, calculated thusly:
+
+.. math::
+
+    R_{QU} = \frac{1}{\Delta x \Delta y}\int_{\Delta x \Delta y}\int_\mathrm{cont} \frac{QU(x,y,\lambda)}
+    {I(x,y,\lambda)} dxdyd\lambda
+
+Where :math:`R_Q` and :math:`R_U` are computed separately. The PAC Modules provide an access point for the :math:`X_{12}`
+database via `update_xtalk_database` function. Thus, all instrument pipelines should compute :math:`R_{QU}` and use
+that function to save updated values of :math:`X_{12}`.
+
+:math:`\tau_{12}`
+-----------------
+
+The baseline method for computing :math:`\tau_{12}` (currently the only one implemented) requires full spatial Stokes
+maps of regions with high polarization signal (e.g., a sunspot). The maps will be provided by instrument partners and
+have dimensionality (X, Y, :math:`\lambda`, 4). The more spatial positions are provided, the better the estimate of
+:math:`\tau_{12}` will be. The wavelength dimension should be truncated to only sample regions of high polarization
+signal (i.e., spectral lines). Given such a map, :math:`\tau_{12}` is computed with the `pac_t12` program:
+
+.. code-block:: console
+
+    pac_t12 [-h] [-t TELESCOPE_DB] [-x THIN_X] [-y THIN_Y] [-u] [-p] map_file outpre
+
+with options
+
+:map_file: Path to the full spatial Stokes map
+
+:outpre: Prefix to use when saving results
+
+:-h: Print help and exit
+
+:-t FILE: Load Telescope Model parameters from the provided database. Defaults to ``./telescope_db.txt``
+
+:-x INT: Only load every INT x dimension spatial pixel
+
+:-y INT: Only load every INT y dimension spatial pixel
+
+:-u: Update the telescope database with the new t12 value
+
+:-p: Produce a plot showing the fit of :math:`\tau_{12}`. Will be saved as ``OUTPRE.pdf``
+
+Example Usage
+*************
+
+Generating Fake Data
+####################
+
+We'll save a simulated ViSP spatial map in a directory called "M12". Clone the PA&C repo and enter its top level before
+starting a python interpreter.
+
+.. code-block:: python
+
+  >>> import gen_fake_data
+  >>> gen_fake_data.make_M12_map('../M12')
+  ...
+  1.172195843700837 2.8667464619203065
+
+The last line shows the currently hard-coded values of :math:`X_{12}` and :math:`\tau_{12}`. The final map file will
+live in "M12/full_maps.fits".
+
+Fitting :math:`\tau_{12}`
+#########################
+
+Pretty straight forward
+
+.. code-block:: console
+
+  $ cd ..
+  $ pac_t12 -t pac-pipeline/telescope_db.txt -up M12/full_maps.fits M12_fit
+  Baseline.py:main: loaded map file tmp/full_maps.fits
+  Baseline.py:main: extracted map with every (10, 10) other pixel
+  Baseline.py:main: initializing Telescope Model
+  Baseline.py:main: starting t12 fitter
+  Baseline.py:fit_t12: starting minimizer with method brute and kwargs {'Ns': 100}
+                 t12                   C           t_elapsed
+        2.863927e+00        1.234988e-01              20.6 s
+  Baseline.py:fit_t12: minimization completed. Best t12 value:  2.8639
+  Baseline.py:main: saving results to M12_fit.pkl
+
+As you can see, the best fit is pretty close to our hard-coded value.

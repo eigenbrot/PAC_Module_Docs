@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Computation of M12 Parameters &#8212; PAC_Pipeline v0.7.0</title>
+    <link rel="stylesheet" href="_static/bootstrap-sphinx.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700" />
+    <link rel="stylesheet" type="text/css" href="_static/dkist.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/js/jquery-fix.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="_static/bootstrap-sphinx.js"></script>
+    <link rel="shortcut icon" href="_static/favico.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quality Assurance of PA&amp;C Outputs" href="QA.html" />
+    <link rel="prev" title="Computation of Telescope M3-6 Parameters" href="tele.html" />
+<meta charset='utf-8'>
+<meta http-equiv='X-UA-Compatible' content='IE=edge,chrome=1'>
+<meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1'>
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+  </head><body>
+
+
+  <div id="navbar" class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="col-md-3 navbar-header">
+        <!-- .btn-navbar is used as the toggle for collapsed navbar content -->
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".nav-collapse">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="http://nso.edu"><img src="_static/img/NSOlogo.gif">
+        </a>
+      </div>
+
+        <div class="collapse navbar-collapse nav-collapse">
+          <ul class="nav navbar-nav hidden">
+            
+              <li class="dropdown globaltoc-container">
+  <a role="button"
+     id="dLabelGlobalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="index.html">Site <b class="caret"></b></a>
+  <ul class="dropdown-menu globaltoc"
+      role="menu"
+      aria-labelledby="dLabelGlobalToc"><ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">PA&amp;C Module Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demod.html">Computation of Demodulation Matrices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tele.html">Computation of Telescope M3-6 Parameters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Computation of M12 Parameters</a></li>
+<li class="toctree-l1"><a class="reference internal" href="QA.html">Quality Assurance of PA&amp;C Outputs</a></li>
+</ul>
+</ul>
+</li>
+              
+                <li class="dropdown">
+  <a role="button"
+     id="dLabelLocalToc"
+     data-toggle="dropdown"
+     data-target="#"
+     href="#">Page <b class="caret"></b></a>
+  <ul class="dropdown-menu localtoc"
+      role="menu"
+      aria-labelledby="dLabelLocalToc"><ul>
+<li><a class="reference internal" href="#">Computation of M12 Parameters</a><ul>
+<li><a class="reference internal" href="#x-12"><span class="math notranslate nohighlight">\(X_{12}\)</span></a></li>
+<li><a class="reference internal" href="#tau-12"><span class="math notranslate nohighlight">\(\tau_{12}\)</span></a><ul>
+<li><a class="reference internal" href="#example-usage">Example Usage</a><ul>
+<li><a class="reference internal" href="#generating-fake-data">Generating Fake Data</a></li>
+<li><a class="reference internal" href="#fitting-tau-12">Fitting <span class="math notranslate nohighlight">\(\tau_{12}\)</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</ul>
+</li>
+              
+            
+            
+              
+                
+  <li>
+    <a href="tele.html" title="Previous Chapter: Computation of Telescope M3-6 Parameters"><span class="glyphicon glyphicon-chevron-left visible-sm"></span><span class="hidden-sm hidden-tablet">&laquo; Computation o...</span>
+    </a>
+  </li>
+  <li>
+    <a href="QA.html" title="Next Chapter: Quality Assurance of PA&C Outputs"><span class="glyphicon glyphicon-chevron-right visible-sm"></span><span class="hidden-sm hidden-tablet">Quality Assur... &raquo;</span>
+    </a>
+  </li>
+              
+            
+            
+            
+            
+          </ul>
+          
+            <ul class="nav navbar-nav navbar-left">
+              <li><a href="http://dkist.nso.edu/">DKIST</a></li>
+              <li><a href="http://docs.cadair.com/devdocs">DC Developer Guide</a></li>
+              <li><a href="http://docs.cadair.com/datarate">DKIST Data Rate</a></li>
+              <li><a href="http://docs.cadair.com/datamodel">DKIST Data Model</a></li>
+            </ul>
+          
+          
+            
+<form class="navbar-form navbar-right" action="search.html" method="get">
+ <div class="form-group">
+  <input type="text" name="q" class="form-control" placeholder="Search" />
+ </div>
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+          
+
+        </div>
+    </div>
+  </div>
+
+<div class="container">
+  <div class="row">
+
+    <div class="col-md-3"><div id="side-logo" >
+            <a href="http://dkist.nso.edu">
+                <img src="_static/img/DKISTLogo-Medium.jpg">
+            </a>
+        </div><div id="sidebar" class="bs-sidenav" role="complementary">
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html">PA&amp;C Module Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demod.html">Computation of Demodulation Matrices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tele.html">Computation of Telescope M3-6 Parameters</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Computation of M12 Parameters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#x-12"><span class="math notranslate nohighlight">\(X_{12}\)</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tau-12"><span class="math notranslate nohighlight">\(\tau_{12}\)</span></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-usage">Example Usage</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#generating-fake-data">Generating Fake Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fitting-tau-12">Fitting <span class="math notranslate nohighlight">\(\tau_{12}\)</span></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="QA.html">Quality Assurance of PA&amp;C Outputs</a></li>
+</ul>
+
+            
+        </div>
+    </div>
+
+    <div class="col-md-9 content">
+      
+  <div class="section" id="computation-of-m12-parameters">
+<h1>Computation of M12 Parameters<a class="headerlink" href="#computation-of-m12-parameters" title="Permalink to this headline">¶</a></h1>
+<p>The M12 mirror group is described by two parameters, <span class="math notranslate nohighlight">\(X_{12}\)</span> and <span class="math notranslate nohighlight">\(\tau_{12}\)</span>, each of which is calculated
+with a different method.</p>
+<div class="section" id="x-12">
+<h2><span class="math notranslate nohighlight">\(X_{12}\)</span><a class="headerlink" href="#x-12" title="Permalink to this headline">¶</a></h2>
+<p><span class="math notranslate nohighlight">\(X_{12}\)</span> can be computed from any region of continuum in observations and should be done so at every opportunity
+(i.e., all positions of all science programs). All records of <span class="math notranslate nohighlight">\(X_{12}\)</span> thus computed will be stored in a database
+that can be used to update the globally accepted value of <span class="math notranslate nohighlight">\(X_{12}\)</span> on a semi-regular basis. The instrument
+partners will be responsible for providing QU/I continuum cross-talk from their science observations, calculated thusly:</p>
+<div class="math notranslate nohighlight">
+\[R_{QU} = \frac{1}{\Delta x \Delta y}\int_{\Delta x \Delta y}\int_\mathrm{cont} \frac{QU(x,y,\lambda)}
+{I(x,y,\lambda)} dxdyd\lambda\]</div>
+<p>Where <span class="math notranslate nohighlight">\(R_Q\)</span> and <span class="math notranslate nohighlight">\(R_U\)</span> are computed separately. The PAC Modules provide an access point for the <span class="math notranslate nohighlight">\(X_{12}\)</span>
+database via <code class="xref py py-obj docutils literal notranslate"><span class="pre">update_xtalk_database</span></code> function. Thus, all instrument pipelines should compute <span class="math notranslate nohighlight">\(R_{QU}\)</span> and use
+that function to save updated values of <span class="math notranslate nohighlight">\(X_{12}\)</span>.</p>
+</div>
+<div class="section" id="tau-12">
+<h2><span class="math notranslate nohighlight">\(\tau_{12}\)</span><a class="headerlink" href="#tau-12" title="Permalink to this headline">¶</a></h2>
+<p>The baseline method for computing <span class="math notranslate nohighlight">\(\tau_{12}\)</span> (currently the only one implemented) requires full spatial Stokes
+maps of regions with high polarization signal (e.g., a sunspot). The maps will be provided by instrument partners and
+have dimensionality (X, Y, <span class="math notranslate nohighlight">\(\lambda\)</span>, 4). The more spatial positions are provided, the better the estimate of
+<span class="math notranslate nohighlight">\(\tau_{12}\)</span> will be. The wavelength dimension should be truncated to only sample regions of high polarization
+signal (i.e., spectral lines). Given such a map, <span class="math notranslate nohighlight">\(\tau_{12}\)</span> is computed with the <code class="xref py py-obj docutils literal notranslate"><span class="pre">pac_t12</span></code> program:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">pac_t12 [-h] [-t TELESCOPE_DB] [-x THIN_X] [-y THIN_Y] [-u] [-p] map_file outpre</span>
+</pre></div>
+</div>
+<p>with options</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">map_file:</th><td class="field-body">Path to the full spatial Stokes map</td>
+</tr>
+<tr class="field-even field"><th class="field-name">outpre:</th><td class="field-body">Prefix to use when saving results</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">-h:</th><td class="field-body">Print help and exit</td>
+</tr>
+<tr class="field-even field"><th class="field-name">-t FILE:</th><td class="field-body">Load Telescope Model parameters from the provided database. Defaults to <code class="docutils literal notranslate"><span class="pre">./telescope_db.txt</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">-x INT:</th><td class="field-body">Only load every INT x dimension spatial pixel</td>
+</tr>
+<tr class="field-even field"><th class="field-name">-y INT:</th><td class="field-body">Only load every INT y dimension spatial pixel</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">-u:</th><td class="field-body">Update the telescope database with the new t12 value</td>
+</tr>
+<tr class="field-even field"><th class="field-name">-p:</th><td class="field-body">Produce a plot showing the fit of <span class="math notranslate nohighlight">\(\tau_{12}\)</span>. Will be saved as <code class="docutils literal notranslate"><span class="pre">OUTPRE.pdf</span></code></td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="example-usage">
+<h3>Example Usage<a class="headerlink" href="#example-usage" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="generating-fake-data">
+<h4>Generating Fake Data<a class="headerlink" href="#generating-fake-data" title="Permalink to this headline">¶</a></h4>
+<p>We’ll save a simulated ViSP spatial map in a directory called “M12”. Clone the PA&amp;C repo and enter its top level before
+starting a python interpreter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">gen_fake_data</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">gen_fake_data</span><span class="o">.</span><span class="n">make_M12_map</span><span class="p">(</span><span class="s1">&#39;../M12&#39;</span><span class="p">)</span>
+<span class="gp">...</span>
+<span class="go">1.172195843700837 2.8667464619203065</span>
+</pre></div>
+</div>
+<p>The last line shows the currently hard-coded values of <span class="math notranslate nohighlight">\(X_{12}\)</span> and <span class="math notranslate nohighlight">\(\tau_{12}\)</span>. The final map file will
+live in “M12/full_maps.fits”.</p>
+</div>
+<div class="section" id="fitting-tau-12">
+<h4>Fitting <span class="math notranslate nohighlight">\(\tau_{12}\)</span><a class="headerlink" href="#fitting-tau-12" title="Permalink to this headline">¶</a></h4>
+<p>Pretty straight forward</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> <span class="nb">cd</span> ..
+<span class="gp">$</span> pac_t12 -t pac-pipeline/telescope_db.txt -up M12/full_maps.fits M12_fit
+<span class="go">Baseline.py:main: loaded map file tmp/full_maps.fits</span>
+<span class="go">Baseline.py:main: extracted map with every (10, 10) other pixel</span>
+<span class="go">Baseline.py:main: initializing Telescope Model</span>
+<span class="go">Baseline.py:main: starting t12 fitter</span>
+<span class="go">Baseline.py:fit_t12: starting minimizer with method brute and kwargs {&#39;Ns&#39;: 100}</span>
+<span class="go">               t12                   C           t_elapsed</span>
+<span class="go">      2.863927e+00        1.234988e-01              20.6 s</span>
+<span class="go">Baseline.py:fit_t12: minimization completed. Best t12 value:  2.8639</span>
+<span class="go">Baseline.py:main: saving results to M12_fit.pkl</span>
+</pre></div>
+</div>
+<p>As you can see, the best fit is pretty close to our hard-coded value.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+    </div>
+      
+  </div>
+</div>
+<footer class="footer">
+  <div class="container">
+    <div class="left-footer">
+         &copy; 2018, Arthur Eigenbrot
+       <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/80x15.png" /></a>
+    </div>
+   
+    <div class="right-footer">
+      Last updated on 01 Oct 2018.
+    </div>
+    <div class="centre-footer">
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.0
+    </div>
+  </div>
+</footer>
+  </body>
+</html>

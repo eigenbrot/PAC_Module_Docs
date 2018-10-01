@@ -1,0 +1,93 @@
+Computation of Telescope M3-6 Parameters
+========================================
+
+pac_tele
+--------
+
+The derivation of mirror parameters for M3 - M6 is done with the `pac_tele` program. It has the following calling sequence
+
+.. code-block:: console
+
+  $ pac_tele [-h] [-N NUMCS] [-t TELESCOPE_DB] [-u] [-f] [-c CONFIG_FILE] [-L] [-s SUFFIX] [-S] [-d CONFIG_FILE] [top_dir] [output]
+
+The options are:
+
+:top_dir: Top-level directory containing Calibration Sequence subdirectories
+
+:output: Location of FITS file that will contain the fit Telescope Model
+
+:-h: Print some help and exit
+
+:-f: Overwrite ``output`` if it exists. Otherwise the program will throw and error.
+
+:-N NUM: Use only the first ``N`` Calibration Sequences found in ``top_dir``
+
+:-u: Update the telescope database with the newly fit M3 - M6 parameters
+
+:-c FILE: Load fitting options from the provided configuration file. This file should be in INI format. This option has been largely superseded by the ``-t`` option.
+
+:-d FILE: Generate a config file with default parameters.
+
+:-t FILE: Load Telescope Model parameters from the provided database. Defaults to ``./telescope_db.txt``
+
+:-s SUFFIX: Control which files in ``data_dir`` are loaded. The file mask is ``data_dir/*SUFFIX``
+
+:-S: Save fitting statistics for later use by the PA&C QA module
+
+:-L: Use a Calibration Unit with a linear retarder
+
+Input Data
+----------
+
+A single Calibration
+Curve (CC) describes the intensity of a single modulator state as a function of Calibration Sequence step. The set of
+CCs for all instrument modulator states is a SoCC. `pac_tele` needs multiple Sets of Calibration Curves (SoCCs) to
+compute telescope parameters. The larger the range of telescope geometries sampled by the SoCCs the more accurate
+the fits will be; I have found that 3 SoCCs seems to be the bare minimum.
+
+Each SoCC should live in its own subdirectory under ``top_dir`` and there should be no subdirectories that do not
+contain SoCCs.
+
+Generating Fake Data
+********************
+
+First we'll create a few fake ViSP SoCCs in a directory called "TM". Clone the PA&C repo and enter its top level before
+starting a python interpreter
+
+.. code-block:: python
+
+  >>> import gen_fake_data
+  >>> o = gen_fake_data.SoCC_multi_day('../TM', numdays=4, DHS=False)
+  ...
+  >>> print(o[:4])
+ (0.9803565698378528, 3.61357957155153, 0.993684269151028, 3.244907576645698)
+
+The last two lines show us the 4 telescope parameters used to generate our fake data.
+
+Fitting Telescope Parameters
+****************************
+
+While we generated 4 separate SoCCs (via the ``numdays`` option) we're worried that fitting all 4 days will take a
+really long time, so let's only use 3 of them by setting ``-N 3`` in the call to `pac_tele`:
+
+.. code-block:: console
+
+  $ cd ..
+  $ pac_tele -t pac-pipeline/telescope_db.txt -N 3 -u TM T_Model.fits
+  FitModels.py:run_fits: loaded polcal data from tmp/day0
+  FitModels.py:run_fits: loaded polcal data from tmp/day1
+  FitModels.py:run_fits: loaded polcal data from tmp/day2
+  FitModels.py:run_fits: updating polarizer py value
+  CUModel.py:set_py_from_database: py = 0.007555 at  620 nm
+  FitModels.py:run_fits: loading telescope database from telescope_db.txt
+  FitModels.py:run_fits: shape of SoCC data: (1, 1)
+  FitModels.py:run_fits: number of modulator states: 10
+  FitModels.py:run_fits: fitting CU parameters
+  FitModels.py:run_fits:  position = (0, 0)
+  FitModels.py:fit_parameters: starting minimizer
+         x34       t34       x56       t56  ret0h_00  dreth_00  ...     chisq t_elapsed
+       0.976     3.662     1.013     3.194     2.104     0.876  ... 1.945e-01    31.0 m
+
+As you can see, we did a pretty good job of fitting the 4 telescope parameters (x34 - t56). To be honest, the output
+file (T_Model.fits) really isn't that useful. The best way to use the results of `pac_tele` is to update the telescope
+database which is used by other programs and pipelines.

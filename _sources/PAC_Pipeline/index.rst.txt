@@ -1,0 +1,10 @@
+*****************
+PAC Documentation
+*****************
+
+This is the documentation for PAC.
+
+Reference/API
+=============
+
+.. automodapi:: PAC_Pipeline
