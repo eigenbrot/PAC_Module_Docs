@@ -19,8 +19,12 @@ If you want to generate fake data for testing you will need to install the
 Modules
 -------
 
-:doc:`demod` - This module takes data from a PolCal run and determines an instrument and setup
-specific set of demodulation matrices.
+:doc:`cupar` - This module uses a single PolCal run and fits Calibration Unit Parameters. It is the first
+in computing demodulation matrices.
+
+:doc:`demod` - This module takes a set of CU parameters and data from a PolCal run and computes corresponding
+demodulation matrices. This is a separate module from :doc:`cupar` to allow for a resampling of CU parameters before
+calculating demodulation matrices.
 
 :doc:`tele` - This modules uses multiple PolCal runs taken over a range of telescope
 geometries to compute mirror parameters for mirrors 3 - 6.
@@ -37,6 +41,7 @@ One of its most useful results is uncertainty estimates of computed demodulation
   :hidden:
 
   self
+  cupar
   demod
   tele
   M12

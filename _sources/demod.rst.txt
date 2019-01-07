@@ -8,11 +8,13 @@ Calculation of demodulation matrices is provided by the `pac_demod` program. It 
 
 .. code-block:: console
 
-  pac_demod [-h] [-f] [-c CONFIG_FILE] [-t TELESCOPE_DB] [-s SUFFIX] [-S] [-L] [-b] [-d CONFIG_FILE] [data_dir] [output]
+  pac_demod [-h] [-f] [-t TELESCOPE_DB] [-s SUFFIX] data_dir CU_pars output
 
 The options are:
 
-:data_dir: A directory containing data for a single PolCal Calibration Sequence. The format of the data is described below and in detail in an upcoming SPEC
+:data_dir: A directory containing data for a single PolCal Calibration Sequence. The format of the data is described below and in detail in an upcoming SPEC.
+
+:CU_pars: A file containing (potentially resampled) CU parameters. This is the output of `pac_cu_pars`
 
 :output: Demodulation matrices are saved to a FITS specified by this option
 
@@ -20,19 +22,9 @@ The options are:
 
 :-f: Overwrite ``output`` if it exists. Otherwise the program will throw and error.
 
-:-c FILE: Load fitting options from the provided configuration file. This file should be in INI format. This option has been largely superseded by the ``-t`` option.
-
-:-d FILE: Generate a config file with default parameters.
-
 :-t FILE: Load Telescope Model parameters from the provided database. Defaults to ``./telescope_db.txt``
 
 :-s SUFFIX: Control which files in ``data_dir`` are loaded. The file mask is ``data_dir/*SUFFIX``
-
-:-S: Save fitting statistics for later use by the PA&C QA module
-
-:-L: Use a Calibration Unit with a linear retarder
-
-:-b: If using a linear retarder, fit the diattenuation of the linear retarder
 
 Input Data
 ----------
@@ -50,19 +42,7 @@ Example Usage
 
 Generating Fake Data
 ********************
-
-First we'll create a fake ViSP SoCC in a directory called "SoCC". Clone the PA&C repo and enter its top level before
-starting a python interpreter
-
-.. code-block:: python
-
-  >>> import gen_fake_data
-  >>> o = gen_fake_data.SoCC_fixed_ret('../SoCC', rand_TM=False, S122=True, DHS=False)
-  ...
-  >>> print(o[:6])
-  (1.4394150464784383, 0.8542884286462229, 2.042783244756634, 0.7801234109755251, 1.813739814552246, 0.7801193696129358)
-
-The last line shows the Calibration Unit parameter values used to generate the fake data.
+See the section in :doc:`cupar`
 
 Fitting CU Parameters and Computing Demodulation Matrices
 *********************************************************
@@ -72,29 +52,26 @@ Now that we have suitable data let's fit these parameters and compute some demod
 .. code-block:: console
 
   $ cd ../
-  $ pac_demod -t pac-pipeline/telescope_db.txt -S SoCC DEMOD.fits
-  PACPipeline.py:main_demodulation_matrix: starting CU parameter fitting using SoCC found in tmp/
-  FitModels.py:run_fits: loaded polcal data from SoCC/
-  FitModels.py:run_fits: updating polarizer py value
-  CUModel.py:set_py_from_database: py = 0.007555 at  620 nm
-  FitModels.py:run_fits: loading telescope database from pac-pipeline/telescope_db.txt
-  FitModels.py:run_fits: shape of SoCC data: (1, 1)
-  FitModels.py:run_fits: number of modulator states: 10
-  FitModels.py:run_fits: fitting CU parameters
-  FitModels.py:run_fits:  position = (0, 0)
-  FitModels.py:fit_parameters: starting minimizer
-         x34       t34       x56       t56  ret0h_00  dreth_00 ret045_00 dret45_00  ret0r_00  dretr_00     chisq t_elapsed
-       1.018     3.613     0.924     3.196     1.439     0.854     2.043     0.780     1.814     0.780 2.820e-02     2.4 m
-  FitModels.py:fit_parameters: minimization completed. Chisq = 2.82e-02, redchi = 5.38e-05
-  FitModels.py:run_fits: saving auxiliary fitting data to ./fitaux/fitobj_00000000.pkl
-  FitModels.py:run_fits: fitting modulation matrix to best CU model
-  PACPipeline.py:main_demodulation_matrix: computing inverse of modulation matrices
-  PACPipeline.py:main_demodulation_matrix:  position = (0, 0)
-  PACPipeline.py:main_demodulation_matrix: saving demodulation matrices to DEMOD.fits
+  $ pac_demod -t pac-pipeline/telescope_db.txt -S SoCC CUPAR.fits DEMOD.fits
+  Data.py:fit_intensity_trend: Average flux in clear measurements: 31420.584
+  GenerateDemodMatrices.py:main: loaded SoCC from tmp/
+  generic.py:load_fit_mode: using PA&C fitting recipe "baseline"
+  GenerateDemodMatrices.py:main: loaded CU Model Parameters from CMP.fits
+  generic.py:load_fit_mode: using PA&C fitting recipe "baseline"
+  GenerateDemodMatrices.py:main: updating polarizer py value
+  CUModel.py:set_py_from_database: py = 0.008137 at  588 nm
+  GenerateDemodMatrices.py:main: loading telescope database from telescope_db.txt
+  GenerateDemodMatrices.py:main: shape of Drawer: (1, 1)
+  GenerateDemodMatrices.py:main: computing demoduation matrices
+  GenerateDemodMatrices.py:main:  position = (0, 0)
+  GenerateDemodMatrices.py:main:  fitting modulation matrix to best CU model
+  GenerateDemodMatrices.py:main:  computing inverse of modulation matrix
+  GenerateDemodMatrices.py:main: saving demodulation matrices to DEMOD.fits
   $ ls -1
+  CUPAR.fits
   DEMOD.fits
   fitaux
   SoCC
   pac-pipeline
 
-As you can see, we did a pretty good job fitting the CU parameters. The demodulation matrices live in DEMOD.fits.
+The demodulation matrices live in DEMOD.fits.
