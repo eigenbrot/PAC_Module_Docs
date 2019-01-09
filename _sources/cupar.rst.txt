@@ -1,0 +1,131 @@
+Fitting of Calibration Unit Parameters
+======================================
+
+pac_cu_pars
+-----------
+
+The fit of CU parameters is provided by the `pac_cu_pars` program. It has the following calling sequence:
+
+.. code-block:: console
+
+  pac_cu_pars [-h] [-f] [-c CONFIG_FILE] [-t TELESCOPE_DB] [-s SUFFIX] [-S] [-L] [-d CONFIG_FILE] [data_dir] [output]
+
+
+The options are:
+
+:data_dir: A directory containing data for a single PolCal Calibration Sequence. The format of the data is described below and in detail in an upcoming SPEC
+
+:output: CU parameters are saved to a FITS specified by this option
+
+:-h: Print some help text and exit
+
+:-f: Overwrite ``output`` if it exists. Otherwise the program will throw and error.
+
+:-c FILE: Load fitting options from the provided configuration file. This file should be in INI format. This option has been largely superseded by the ``-t`` option.
+
+:-d FILE: Generate a config file with default parameters.
+
+:-t FILE: Load Telescope Model parameters from the provided database. Defaults to ``./telescope_db.txt``
+
+:-s SUFFIX: Control which files in ``data_dir`` are loaded. The file mask is ``data_dir/*SUFFIX``
+
+:-S: Save fitting statistics for later use by the PA&C QA module
+
+:-L: Use a Calibration Unit with a linear retarder
+
+Input Data
+----------
+
+`pac_cu_pars` needs a Set of Calibration Curves (SoCC) to compute demodulation matrices. A single Calibration Curve (CC)
+describes the intensity of a single modulator state as a function of Calibration Sequence step. The set of CCs for all
+instrument modulator states is a SoCC.
+
+If the Calibration Sequence had *N* steps and the instrument in question has *M* modulation states then the SoCC will
+be organized into *N* FITS files, each with *M* ImageHDUs. All of the ImageHDUs will be two-dimensional with the same
+shape, (X, Y). A separate demodulation matrix will be computed for each of the (X, Y) locations.
+
+Example Usage
+-------------
+
+Generating Fake Data
+********************
+First we'll create a fake ViSP SoCC in a directory called "SoCC". Clone the PA&C repo and enter its top level before
+starting a python interpreter
+
+.. code-block:: python
+
+  >>> import gen_fake_data
+  >>> o = gen_fake_data.SoCC_multi_dat('../SoCC', numdays=1, rand_TM=False, DHS=False)
+  ...
+  x12       :     1.109
+  t12       :     1.737
+  x34       :     1.021
+  t34       :     3.187
+  x56       :     1.000
+  t56       :     3.026
+  I_sys     : 27732.663
+  t_pol     :     0.717
+  t_ret     :     0.747
+  Q_in      :     0.000
+  U_in      :     0.000
+  V_in      :     0.000
+  ret_0_h   :     1.439
+  dret_h    :     0.000
+  ret_0_45  :     2.043
+  dret_45   :     0.000
+  ret_0_r   :     1.814
+  dret_r    :     0.000
+  ret_0_lin :     1.674
+  dret_lin  :     0.000
+  theta_lin :     0.490
+  dtheta_lin:     0.000
+
+The status message shows the Calibration Unit parameter values used to generate the fake data.
+
+Fitting CU Parameters and Computing Demodulation Matrices
+*********************************************************
+
+Now that we have suitable data let's fit these parameters and compute some demodulation matrices.
+
+.. code-block:: console
+
+  $ cd ../
+  $ mv SoCC/day0/* SoCC/
+  $ pac_cu_pars -t pac-pipeline/telescope_db.txt -S SoCC CUPAR.fits
+  FitCUParams.py:main: starting CU parameter fitting using SoCC found in tmp/
+  generic.py:load_fit_mode: using PA&C fitting recipe "baseline"
+  Data.py:fit_intensity_trend: Average flux in clear measurements: 31420.584
+  FittingFramework.py:run_fits: loaded polcal data from tmp/
+  FittingFramework.py:run_fits: updating polarizer py value
+  CUModel.py:set_py_from_database: py = 0.008137 at  588 nm
+  FittingFramework.py:run_fits: loading telescope database from telescope_db.txt
+  FittingFramework.py:run_fits: shape of Drawer data: (1, 1)
+  FittingFramework.py:run_fits: number of modulator states: 10
+  FittingFramework.py:run_fits: number of CS steps: 55
+  FittingFramework.py:run_fits: fitting CU parameters
+  FittingFramework.py:run_fits:  using SoCC at position = (0, 0)
+  FittingFramework.py:fit_parameters: starting minimizer
+  Fixed parameters:
+  x34        : 1.021
+  t34        : 3.187
+  x56        : 1.000
+  t56        : 3.026
+  U_in       : 0.000
+  V_in       : 0.000
+  dreth_00   : 0.000
+  dret45_00  : 0.000
+  dretr_00   : 0.000
+
+  Free parameters:
+        Q_in  t_pol_00  t_ret_00  I_sys_00  ret0h_00 ret045_00  ret0r_00     chisq t_elapsed
+      -0.104     0.717     0.747 30931.097     1.439     2.043     1.814 3.131e-04     2.3 m
+  FittingFramework.py:fit_parameters: minimization completed in 135.7 s. Chisq = 3.13e-04, redchi = 5.77e-07
+  FittingFramework.py:run_fits: saving auxiliary fitting data to ./fitaux/fitobj_00000000.pkl
+  FitCUParams.py:main: saving best-fit CU parameters to CUPAR.fits
+  $ ls -1
+  CUPAR.fits
+  fitaux
+  SoCC
+  pac-pipeline
+
+As you can see, we did a pretty good job fitting the CU parameters. They live in CUPAR.fits.
